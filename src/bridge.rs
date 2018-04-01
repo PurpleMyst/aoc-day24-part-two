@@ -1,8 +1,6 @@
 use std::rc::Rc;
 
-use super::component::Component;
-
-use super::rpds::HashTrieSet;
+use super::component::{Component, Components};
 
 #[derive(Debug)]
 pub struct Bridge {
@@ -12,11 +10,11 @@ pub struct Bridge {
     pub strength: usize,
     pub length: usize,
 
-    available_components: HashTrieSet<Component>,
+    available_components: Components,
 }
 
 impl Bridge {
-    pub fn new(components: HashTrieSet<Component>) -> Self {
+    pub fn new(components: Components) -> Self {
         Self {
             available_port: 0,
             previous_component: None,
@@ -42,7 +40,7 @@ impl Bridge {
         }
     }
 
-    // TODO: We could use `impl Trait` here.
+    // TODO: We could use `impl Trait` here, maybe?
     pub fn children(self) -> (Vec<Self>, Rc<Self>) {
         let self_rc = Rc::new(self);
 

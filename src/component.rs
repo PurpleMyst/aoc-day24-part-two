@@ -1,5 +1,7 @@
 use std::{fmt, num::ParseIntError, str::FromStr};
 
+use super::rpds;
+
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct Component {
     pub left: u8,
@@ -24,3 +26,5 @@ impl fmt::Display for Component {
         write!(f, "{}/{}", self.left, self.right)
     }
 }
+
+pub type Components = rpds::HashTrieSet<Component>;

@@ -2,10 +2,9 @@
 use std::{fs, mem};
 
 extern crate rpds;
-use rpds::HashTrieSet;
 
 mod component;
-use component::Component;
+use component::Components;
 
 mod bridge;
 use bridge::Bridge;
@@ -15,11 +14,12 @@ fn main() {
         .unwrap()
         .lines()
         .map(&str::parse)
-        .collect::<Result<HashTrieSet<Component>, _>>()
+        .collect::<Result<Components, _>>()
         .unwrap();
 
     let mut bridges = vec![Bridge::new(components)];
     let mut best_bridge_strength = 0;
+    let mut best_bridge_length = 0;
 
     while !bridges.is_empty() {
         // assert we're not using more than a megabyte of memory
@@ -29,8 +29,9 @@ fn main() {
             let (children, bridge) = bridge.children();
 
             if children.is_empty() {
-                if bridge.strength > best_bridge_strength {
+                if bridge.strength >= best_bridge_strength || bridge.length > best_bridge_length {
                     best_bridge_strength = bridge.strength;
+                    best_bridge_length = bridge.length;
                 }
 
                 vec![]
