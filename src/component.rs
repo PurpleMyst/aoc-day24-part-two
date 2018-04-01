@@ -2,7 +2,7 @@ use std::{fmt, num::ParseIntError, str::FromStr};
 
 use super::rpds;
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[derive(PartialEq, Eq, Hash, Debug)]
 pub struct Component {
     pub left: u8,
     pub right: u8,
