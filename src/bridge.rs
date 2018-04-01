@@ -5,7 +5,7 @@ use super::component::Component;
 #[derive(Debug)]
 pub struct Bridge<'a> {
     components: HashSet<&'a Component>,
-    last_port: usize,
+    last_port: u8,
 }
 
 impl<'a> Bridge<'a> {
@@ -43,7 +43,7 @@ impl<'a> Bridge<'a> {
     pub fn strength(&self) -> usize {
         self.components
             .iter()
-            .map(|component| component.left + component.right)
+            .map(|component| (component.left + component.right) as usize)
             .sum()
     }
 

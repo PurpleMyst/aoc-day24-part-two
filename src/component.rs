@@ -2,8 +2,8 @@ use std::{fmt, num::ParseIntError, str::FromStr};
 
 #[derive(PartialEq, Eq, Hash, Debug)]
 pub struct Component {
-    pub left: usize,
-    pub right: usize,
+    pub left: u8,
+    pub right: u8,
 }
 
 impl FromStr for Component {
