@@ -1,53 +1,62 @@
-use std::collections::HashSet;
+use std::rc::Rc;
 
 use super::component::Component;
 
+use super::rpds::HashTrieSet;
+
 #[derive(Debug)]
-pub struct Bridge<'a> {
-    components: HashSet<&'a Component>,
-    last_port: u8,
+pub struct Bridge {
+    pub available_port: u8,
+    pub previous_component: Option<Rc<Bridge>>,
+
+    pub strength: usize,
+    pub length: usize,
+
+    available_components: HashTrieSet<Component>,
 }
 
-impl<'a> Bridge<'a> {
-    pub fn new() -> Self {
+impl Bridge {
+    pub fn new(components: HashTrieSet<Component>) -> Self {
         Self {
-            components: HashSet::new(),
-            last_port: 0,
+            available_port: 0,
+            previous_component: None,
+
+            strength: 0,
+            length: 0,
+
+            available_components: components,
         }
     }
 
-    pub fn successors(&self, components: &'a Vec<Component>) -> Vec<Self> {
-        components
+    pub fn add_component(self_rc: Rc<Self>, component: Component, available_port: u8) -> Self {
+        Self {
+            available_port,
+
+            strength: self_rc.strength + (component.left as usize) + (component.right as usize),
+            length: self_rc.length + 1,
+
+            available_components: self_rc.available_components.remove(&component),
+
+            // after everything cause this moves
+            previous_component: Some(self_rc),
+        }
+    }
+
+    // TODO: We could use `impl Trait` here.
+    pub fn children(self) -> (Vec<Self>, Rc<Self>) {
+        let self_rc = Rc::new(self);
+
+        (self_rc.available_components
             .iter()
-            .filter(|component| !self.components.contains(component))
-            .filter_map(|component| {
-                let new_last = if component.left == self.last_port {
-                    component.right
-                } else if component.right == self.last_port {
-                    component.left
+            .filter_map(|component: &Component| -> Option<Self> {
+                if component.left == self_rc.available_port {
+                    Some(Self::add_component(Rc::clone(&self_rc), *component, component.right))
+                } else if component.right == self_rc.available_port {
+                    Some(Self::add_component(Rc::clone(&self_rc), *component, component.left))
                 } else {
-                    return None;
-                };
-
-                let mut new_components = self.components.clone();
-                new_components.insert(component);
-
-                Some(Self {
-                    components: new_components,
-                    last_port: new_last,
-                })
+                    None
+                }
             })
-            .collect()
-    }
-
-    pub fn strength(&self) -> usize {
-        self.components
-            .iter()
-            .map(|component| (component.left + component.right) as usize)
-            .sum()
-    }
-
-    pub fn len(&self) -> usize {
-        self.components.len()
+            .collect(), self_rc)
     }
 }

@@ -1,6 +1,6 @@
 use std::{fmt, num::ParseIntError, str::FromStr};
 
-#[derive(PartialEq, Eq, Hash, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct Component {
     pub left: u8,
     pub right: u8,

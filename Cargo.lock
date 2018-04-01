@@ -1,4 +1,14 @@
 [[package]]
 name = "aoc-day24-part-two"
 version = "0.1.0"
+dependencies = [
+ "rpds 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
+[[package]]
+name = "rpds"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[metadata]
+"checksum rpds 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "99c34ab3c57b338dfe56c5e9c1835d98fca49552dafed340261321bf9a971a9e"

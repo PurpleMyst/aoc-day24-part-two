@@ -1,5 +1,8 @@
 #![feature(fs_read_write)]
-use std::fs;
+use std::{fs, mem};
+
+extern crate rpds;
+use rpds::HashTrieSet;
 
 mod component;
 use component::Component;
@@ -12,46 +15,30 @@ fn main() {
         .unwrap()
         .lines()
         .map(&str::parse)
-        .collect::<Result<Vec<Component>, _>>()
+        .collect::<Result<HashTrieSet<Component>, _>>()
         .unwrap();
 
-    let mut bridges = vec![Bridge::new()];
-    let mut best_bridge: Option<(usize, usize)> = None;
+    let mut bridges = vec![Bridge::new(components)];
+    let mut best_bridge_strength = 0;
 
     while !bridges.is_empty() {
-        debug_assert!(bridges.len() < 1_000_000);
+        // assert we're not using more than a megabyte of memory
+        debug_assert!(mem::size_of_val(&bridges) <= 1 * 1024 * 1024);
 
-        bridges = bridges
-            .into_iter()
-            .filter_map(|bridge| {
-                let successors = bridge.successors(&components);
+        bridges = bridges.into_iter().flat_map(|bridge| {
+            let (children, bridge) = bridge.children();
 
-                if successors.is_empty() {
-                    let this_bridge_is_better =
-                        best_bridge
-                            .map(|(length, strength)| {
-                                if bridge.len() > length {
-                                    true
-                                } else if bridge.len() == length {
-                                    bridge.strength() > strength
-                                } else {
-                                    false
-                                }
-                            })
-                            .unwrap_or(true);
-
-                    if this_bridge_is_better {
-                        best_bridge = Some((bridge.len(), bridge.strength()));
-                    }
-
-                    None
-                } else {
-                    Some(successors)
+            if children.is_empty() {
+                if bridge.strength > best_bridge_strength {
+                    best_bridge_strength = bridge.strength;
                 }
-            })
-            .flat_map(|v| v) // XXX: Is there a `flatten` option?
-            .collect()
+
+                vec![]
+            } else {
+                children
+            }
+        }).collect();
     }
 
-    println!("{}", best_bridge.unwrap().1);
+    println!("{}", best_bridge_strength);
 }
